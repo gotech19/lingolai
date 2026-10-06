@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { UserStats, LanguageCode, UserProfile } from '../types';
 import { LANGUAGES } from '../data/mockData';
 import { playTapSound } from '../utils/audio';
-import { ChevronDown, Sparkles, RotateCcw } from 'lucide-react';
+import { ChevronDown, RotateCcw, Moon, Sun } from 'lucide-react';
 import { GoogleIcon } from './OnboardingScreen';
 
 interface HeaderNavProps {
   stats: UserStats;
   currentUser: UserProfile;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
   onOpenGoogleAuth: () => void;
   onSelectLanguage: (lang: LanguageCode) => void;
   onResetToOnboarding: () => void;
@@ -17,6 +19,8 @@ interface HeaderNavProps {
 export const HeaderNav: React.FC<HeaderNavProps> = ({
   stats,
   currentUser,
+  isDarkMode = false,
+  onToggleDarkMode,
   onOpenGoogleAuth,
   onSelectLanguage,
   onResetToOnboarding,
@@ -38,24 +42,23 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 w-full max-w-md mx-auto bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 py-2 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-      {/* Left: Prominent LinGoL Brand & Language Selector */}
+    <header className="sticky top-0 z-30 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-3.5 py-2.5 flex items-center justify-between shadow-xs">
+      {/* Left: Brand & Language */}
       <div className="flex items-center gap-2">
-        {/* LinGoL Logo & Name */}
         <div
           onClick={() => {
             playTapSound();
             onResetToOnboarding();
           }}
           className="flex items-center gap-1.5 cursor-pointer group"
-          title="LinGoL - Accueil"
+          title="Accueil LinGoL"
         >
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#004ac6] to-[#2563eb] flex items-center justify-center text-white font-black text-sm shadow-xs group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#0D9488] flex items-center justify-center text-white font-black text-sm shadow-xs group-hover:scale-105 transition-transform">
             L
           </div>
           <span
-            className="font-black text-base tracking-tight text-[#004ac6] hidden xs:inline-block sm:inline-block"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
+            className="font-black text-lg tracking-tight text-[#2563EB] dark:text-blue-400 leading-none"
+            style={{ fontFamily: 'Outfit, sans-serif' }}
           >
             LinGoL
           </span>
@@ -68,18 +71,17 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               playTapSound();
               setDropdownOpen(!dropdownOpen);
             }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200/70"
-            title="Changer de langue cible"
-            aria-label="Changer de langue"
+            className="flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors border border-slate-200/70 dark:border-slate-700"
+            title="Changer de langue"
           >
             <span className="text-base leading-none">{currentLang.flag}</span>
-            <span className="text-[11px] font-bold text-slate-700 uppercase">{currentLang.code}</span>
+            <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase">{currentLang.code}</span>
             <ChevronDown className="w-3 h-3 text-slate-400" />
           </button>
 
           {dropdownOpen && (
-            <div className="absolute top-full left-0 mt-1.5 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-50 animate-fadeIn">
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+            <div className="absolute top-full left-0 mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 py-1 z-50 animate-fadeIn max-h-56 overflow-y-auto">
+              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800">
                 Langue cible
               </div>
               {LANGUAGES.map((lang) => (
@@ -92,16 +94,16 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors ${
                     lang.code === stats.selectedLanguage
-                      ? 'bg-blue-50 text-[#004ac6] font-bold'
-                      : 'text-slate-700 hover:bg-slate-50'
+                      ? 'bg-blue-50 dark:bg-blue-900/40 text-[#2563EB] dark:text-blue-300 font-bold'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="text-lg">{lang.flag}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate">{lang.name}</div>
+                  <div className="min-w-0 flex-1 truncate">
+                    <div>{lang.name}</div>
                   </div>
                   {lang.code === stats.selectedLanguage && (
-                    <span className="text-[10px] bg-blue-100 text-[#004ac6] px-1.5 py-0.5 rounded font-bold">
+                    <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-[#2563EB] dark:text-blue-300 px-1.5 py-0.5 rounded font-bold">
                       Actif
                     </span>
                   )}
@@ -112,72 +114,73 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         </div>
       </div>
 
-      {/* Right: Stats & Google Auth */}
+      {/* Right: Stats, Dark Mode & Profile */}
       <div className="flex items-center gap-2 text-xs font-bold">
         {/* Streak */}
         <div
-          className="flex items-center gap-1 text-orange-600 bg-orange-50/80 px-2 py-1 rounded-lg border border-orange-200/60"
-          title={`Série de ${stats.streakDays} jours d'entraînement`}
+          className="flex items-center gap-1 text-orange-600 dark:text-orange-400 bg-orange-50/80 dark:bg-orange-950/40 px-2 py-1 rounded-xl border border-orange-200/60 dark:border-orange-800/60"
+          title={`Série de ${stats.streakDays} jours`}
         >
           <span className="text-sm">🔥</span>
-          <span className="tabular-nums font-extrabold text-[11px]">{stats.streakDays}</span>
+          <span className="tabular-nums font-black text-[11px]">{stats.streakDays}</span>
         </div>
 
-        {/* Gems / Lingots */}
+        {/* Gems */}
         <div
-          className="flex items-center gap-1 text-blue-600 bg-blue-50/80 px-2 py-1 rounded-lg border border-blue-200/60"
+          className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/40 px-2 py-1 rounded-xl border border-blue-200/60 dark:border-blue-800/60"
           title={`${stats.gems} Lingots`}
         >
           <span className="text-sm">💎</span>
-          <span className="tabular-nums font-extrabold text-[11px]">{stats.gems}</span>
+          <span className="tabular-nums font-black text-[11px]">{stats.gems}</span>
         </div>
 
-        {/* Google Authentication Button / User Profile */}
+        {/* Dark Mode button on mobile */}
+        {onToggleDarkMode && (
+          <button
+            onClick={() => {
+              playTapSound();
+              onToggleDarkMode();
+            }}
+            className="p-1.5 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="Mode sombre"
+          >
+            {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+          </button>
+        )}
+
+        {/* Google Authentication Button */}
         <button
           onClick={() => {
             playTapSound();
             onOpenGoogleAuth();
           }}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all cursor-pointer border ${
+          className={`flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all cursor-pointer border ${
             currentUser.isAuthenticated
-              ? 'bg-white border-blue-200 hover:border-blue-400 shadow-2xs'
-              : 'bg-white hover:bg-slate-50 border-slate-200 shadow-2xs'
+              ? 'bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-700 shadow-2xs'
+              : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 shadow-2xs'
           }`}
-          title={
-            currentUser.isAuthenticated
-              ? `Connecté avec Google : ${currentUser.name}`
-              : 'Se connecter avec Google'
-          }
+          title={currentUser.isAuthenticated ? currentUser.name : 'Connexion Google'}
         >
           {currentUser.isAuthenticated ? (
-            <div className="flex items-center gap-1.5">
-              <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                className="w-5 h-5 rounded-full object-cover border border-slate-200"
-              />
-              <span className="text-[11px] font-semibold text-slate-700 hidden sm:inline max-w-[60px] truncate">
-                {currentUser.name.split(' ')[0]}
-              </span>
-            </div>
+            <img
+              src={currentUser.avatar}
+              alt={currentUser.name}
+              className="w-5 h-5 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+            />
           ) : (
-            <div className="flex items-center gap-1">
-              <GoogleIcon />
-              <span className="text-[11px] font-semibold text-slate-700 hidden xs:inline">Google</span>
-            </div>
+            <GoogleIcon />
           )}
         </button>
 
-        {/* Reset to virgin / clean slate button */}
+        {/* Reset button */}
         {onOpenResetModal && (
           <button
             onClick={() => {
               playTapSound();
               onOpenResetModal();
             }}
-            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-            title="Mettre à zéro l'application (état vierge)"
-            aria-label="Mettre à zéro"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            title="Mettre à zéro l'application"
           >
             <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
           </button>

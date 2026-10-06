@@ -1,4 +1,6 @@
-export type LanguageCode = 'es' | 'en' | 'fr' | 'de' | 'it' | 'ja' | 'zh';
+export type LanguageCode = 'es' | 'en' | 'fr' | 'de' | 'it' | 'ja' | 'zh' | 'ar';
+
+export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 export interface Language {
   code: LanguageCode;
@@ -7,6 +9,7 @@ export interface Language {
   flag: string;
   voiceLang: string;
   sampleGreeting: string;
+  isRtl?: boolean;
 }
 
 export interface UserStats {
@@ -17,6 +20,7 @@ export interface UserStats {
   hearts: number;
   maxHearts: number;
   level: number;
+  cefrLevel: CEFRLevel;
   selectedLanguage: LanguageCode;
   dailyGoalMinutes: number;
   todayMinutesPracticed: number;
@@ -89,6 +93,8 @@ export interface Flashcard {
   exampleTranslation: string;
   mastery: number; // 0-100
   languageCode?: LanguageCode;
+  category?: string;
+  isFavorite?: boolean;
 }
 
 export interface WordOfTheDay {
@@ -109,4 +115,36 @@ export interface LeaderboardUser {
   avatar: string;
   xp: number;
   isCurrentUser?: boolean;
+}
+
+export interface DailyMission {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  target: number;
+  rewardXp: number;
+  rewardGems: number;
+  isCompleted: boolean;
+  icon: string;
+}
+
+export interface DailyPlanItem {
+  id: string;
+  title: string;
+  type: 'vocabulary' | 'listening' | 'speaking' | 'grammar';
+  durationMin: number;
+  isCompleted: boolean;
+}
+
+export interface SpeakingEvaluation {
+  pronunciationScore: number;
+  fluencyScore: number;
+  grammarScore: number;
+  vocabularyScore: number;
+  intelligibilityScore: number;
+  wpm: number;
+  feedback: string;
+  transcription: string;
+  recordedAudioUrl?: string;
 }

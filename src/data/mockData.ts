@@ -1,4 +1,4 @@
-import { Language, Unit, Flashcard, LeaderboardUser, WordOfTheDay, UserStats } from '../types';
+import { Language, Unit, Flashcard, LeaderboardUser, WordOfTheDay, UserStats, DailyMission, DailyPlanItem } from '../types';
 
 export const LANGUAGES: Language[] = [
   {
@@ -48,6 +48,15 @@ export const LANGUAGES: Language[] = [
     flag: '🇮🇹',
     voiceLang: 'it-IT',
     sampleGreeting: 'Ciao! Come stai?',
+  },
+  {
+    code: 'ar',
+    name: 'Arabic',
+    nativeName: 'العربية',
+    flag: '🇸🇦',
+    voiceLang: 'ar-SA',
+    sampleGreeting: 'مرحباً! كيف حالك اليوم؟',
+    isRtl: true,
   },
 ];
 
@@ -527,6 +536,7 @@ export const VIRGIN_STATS: UserStats = {
   hearts: 5,
   maxHearts: 5,
   level: 1,
+  cefrLevel: 'A1',
   selectedLanguage: 'es',
   dailyGoalMinutes: 10,
   todayMinutesPracticed: 0,
@@ -540,10 +550,78 @@ export const DEMO_STATS: UserStats = {
   hearts: 5,
   maxHearts: 5,
   level: 3,
+  cefrLevel: 'B1',
   selectedLanguage: 'es',
   dailyGoalMinutes: 10,
   todayMinutesPracticed: 6,
 };
+
+export const INITIAL_MISSIONS: DailyMission[] = [
+  {
+    id: 'm1',
+    title: 'Pratique Orale avec Lina',
+    description: 'Parlez au microphone pendant au moins 3 minutes',
+    progress: 2,
+    target: 3,
+    rewardXp: 25,
+    rewardGems: 10,
+    isCompleted: false,
+    icon: '🎙️',
+  },
+  {
+    id: 'm2',
+    title: 'Maîtrise du Vocabulaire',
+    description: 'Révisez et réussissez 5 cartes dans le coffre',
+    progress: 5,
+    target: 5,
+    rewardXp: 20,
+    rewardGems: 5,
+    isCompleted: true,
+    icon: '📇',
+  },
+  {
+    id: 'm3',
+    title: 'Leçon Impeccable',
+    description: 'Terminez 1 leçon interactive avec 3 étoiles',
+    progress: 1,
+    target: 1,
+    rewardXp: 30,
+    rewardGems: 15,
+    isCompleted: true,
+    icon: '⭐',
+  },
+];
+
+export const INITIAL_DAILY_PLAN: DailyPlanItem[] = [
+  {
+    id: 'dp1',
+    title: 'Vocabulaire du matin : Café & Salutations',
+    type: 'vocabulary',
+    durationMin: 10,
+    isCompleted: true,
+  },
+  {
+    id: 'dp2',
+    title: 'Écoute active & Compréhension orale',
+    type: 'listening',
+    durationMin: 10,
+    isCompleted: true,
+  },
+  {
+    id: 'dp3',
+    title: 'Conversation orale avec Lina AI',
+    type: 'speaking',
+    durationMin: 15,
+    isCompleted: false,
+  },
+  {
+    id: 'dp4',
+    title: 'Grammaire contextuelle : Masculin & Féminin',
+    type: 'grammar',
+    durationMin: 10,
+    isCompleted: false,
+  },
+];
 
 export function getVirginUnits(): Unit[] {
   return INITIAL_UNITS.map((u, uIdx) => ({
