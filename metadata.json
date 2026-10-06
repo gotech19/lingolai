@@ -1,0 +1,6 @@
+{
+  "name": "LinGoL - AI Language Partner",
+  "description": "Meet Lina AI: your personal 24/7 conversation partner and gamified language learning system for real-world fluency.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

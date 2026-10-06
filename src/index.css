@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+@theme {
+  --font-headline: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --color-primary: #004ac6;
+  --color-primary-container: #2563eb;
+  --color-on-primary-container: #eeefff;
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-secondary: #006c49;
+  --color-secondary-container: #6cf8bb;
+  --color-outline-variant: #c3c6d7;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #434655;
+  --color-tertiary: #ff9800;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background-color: #f8f9ff;
+    color: #0b1c30;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-headline);
+  }
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.aurora-border {
+  position: relative;
+  background: white;
+  border-radius: 9999px;
+}
+
+.aurora-border::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: linear-gradient(45deg, #004ac6, #6cf8bb, #60a5fa, #2563eb, #004ac6);
+  z-index: -1;
+  filter: blur(4px);
+  animation: borderGlow 4s linear infinite;
+}
+
+@keyframes borderGlow {
+  0% {
+    filter: blur(4px) hue-rotate(0deg);
+  }
+  100% {
+    filter: blur(4px) hue-rotate(360deg);
+  }
+}
+
+/* 3D Tactile Word Chips */
+.tactile-chip {
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 3px 0 0 #cbd5e1;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.tactile-chip:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.tactile-chip:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #cbd5e1;
+}
+
+.tactile-chip.selected {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  box-shadow: 0 3px 0 0 #2563eb;
+}
+
+.tactile-chip.selected:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #2563eb;
+}
+
+/* Tactile 3D Action Button */
+.btn-3d-primary {
+  background-color: #004ac6;
+  box-shadow: 0 4px 0 0 #002f80;
+  transition: all 0.12s ease;
+}
+
+.btn-3d-primary:hover:not(:disabled) {
+  background-color: #0053db;
+}
+
+.btn-3d-primary:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 #002f80;
+}
+
+.btn-3d-green {
+  background-color: #16a34a;
+  box-shadow: 0 4px 0 0 #15803d;
+  transition: all 0.12s ease;
+}
+
+.btn-3d-green:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 #15803d;
+}
+
+/* Float animations */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-3deg);
+  }
+}
+
+@keyframes floatGentleRight {
+  0%, 100% {
+    transform: translateY(0px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(2deg);
+  }
+}
+
+.animate-float-left {
+  animation: floatGentle 3.5s ease-in-out infinite;
+}
+
+.animate-float-right {
+  animation: floatGentleRight 4s ease-in-out infinite 0.5s;
+}
+
+/* Waveform pulse for voice speaking */
+@keyframes soundWave {
+  0%, 100% {
+    height: 6px;
+  }
+  50% {
+    height: 24px;
+  }
+}
+
+.waveform-bar {
+  animation: soundWave 1.2s ease-in-out infinite;
+}
+
+/* Typing wave indicator for Lina AI */
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-7px) scale(1.15);
+    opacity: 1;
+  }
+}
+
+.typing-dot-1 {
+  animation: typingBounce 1.3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: 0s;
+}
+
+.typing-dot-2 {
+  animation: typingBounce 1.3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: 0.18s;
+}
+
+.typing-dot-3 {
+  animation: typingBounce 1.3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: 0.36s;
+}
+
