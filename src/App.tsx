@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { OnboardingScreen } from './components/OnboardingScreen';
 import { SetupModal } from './components/SetupModal';
 import { HeaderNav } from './components/HeaderNav';
+import { SidebarNav } from './components/SidebarNav';
 import { BottomNav, TabType } from './components/BottomNav';
 import { LearningPath } from './components/LearningPath';
 import { LinaChatStudio } from './components/LinaChatStudio';
@@ -14,18 +15,48 @@ import { VocabReview } from './components/VocabReview';
 import { LeaderboardView } from './components/LeaderboardView';
 import { LessonModal } from './components/LessonModal';
 import { GoogleAuthModal } from './components/GoogleAuthModal';
-import { INITIAL_UNITS, INITIAL_FLASHCARDS } from './data/mockData';
+import { ResetModal } from './components/ResetModal';
+import {
+  VIRGIN_STATS,
+  DEMO_STATS,
+  getVirginUnits,
+  getVirginFlashcards,
+  INITIAL_UNITS,
+  INITIAL_FLASHCARDS,
+  LANGUAGES,
+} from './data/mockData';
 import { UnitLesson, UserStats, LanguageCode, Flashcard, WordOfTheDay, UserProfile } from './types';
-import { Smartphone, Monitor, Mic } from 'lucide-react';
+import { Mic, RotateCcw, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<'onboarding' | 'setup' | 'main'>('onboarding');
-  const [activeTab, setActiveTab] = useState<TabType>('lina'); // Start on Lina for direct voice/speech practice!
+  const [activeTab, setActiveTab] = useState<TabType>('lina'); // Parler avec Lina en priorité
   const [activeLesson, setActiveLesson] = useState<UnitLesson | null>(null);
-  const [units, setUnits] = useState(INITIAL_UNITS);
-  const [flashcards, setFlashcards] = useState<Flashcard[]>(INITIAL_FLASHCARDS);
-  const [isPhoneFrame, setIsPhoneFrame] = useState(true);
-  const [isGoogleAuthModalOpen, setIsGoogleAuthModalOpen] = useState(false);
+
+  // Virgin state initialization (starts clean at zero)
+  const [units, setUnits] = useState<typeof INITIAL_UNITS>(() => {
+    try {
+      const saved = localStorage.getItem('lingol_units');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return getVirginUnits();
+  });
+
+  const [flashcards, setFlashcards] = useState<Flashcard[]>(() => {
+    try {
+      const saved = localStorage.getItem('lingol_flashcards');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return getVirginFlashcards();
+  });
+
+  const [stats, setStats] = useState<UserStats>(() => {
+    try {
+      const saved = localStorage.getItem('lingol_stats');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return VIRGIN_STATS;
+  });
 
   // User Profile with Google Authentication state
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
@@ -42,18 +73,27 @@ export default function App() {
     };
   });
 
-  const [stats, setStats] = useState<UserStats>({
-    streakDays: 5,
-    streakActiveToday: true,
-    xp: 980,
-    gems: 480,
-    hearts: 5,
-    maxHearts: 5,
-    level: 3,
-    selectedLanguage: 'es',
-    dailyGoalMinutes: 10,
-    todayMinutesPracticed: 6,
-  });
+  const [isGoogleAuthModalOpen, setIsGoogleAuthModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+
+  // Sync state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('lingol_stats', JSON.stringify(stats));
+    } catch {}
+  }, [stats]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('lingol_units', JSON.stringify(units));
+    } catch {}
+  }, [units]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('lingol_flashcards', JSON.stringify(flashcards));
+    } catch {}
+  }, [flashcards]);
 
   const handleGetStartedFromOnboarding = () => {
     setCurrentScreen('setup');
@@ -85,7 +125,6 @@ export default function App() {
       gems: prev.gems + 20,
     }));
 
-    // If still in onboarding, jump right into the app to simplify flow
     if (currentScreen === 'onboarding') {
       setCurrentScreen('main');
     }
@@ -103,6 +142,31 @@ export default function App() {
     try {
       localStorage.removeItem('lingol_google_user');
     } catch {}
+  };
+
+  // Reset to clean virgin state (0 XP, 0 streak, initial lesson 1)
+  const handleResetToVirgin = () => {
+    const virginUnits = getVirginUnits();
+    const virginCards = getVirginFlashcards();
+    setStats(VIRGIN_STATS);
+    setUnits(virginUnits);
+    setFlashcards(virginCards);
+    setCurrentScreen('onboarding');
+    setActiveTab('lina');
+    try {
+      localStorage.removeItem('lingol_stats');
+      localStorage.removeItem('lingol_units');
+      localStorage.removeItem('lingol_flashcards');
+      localStorage.removeItem('lingol_google_user');
+    } catch {}
+  };
+
+  // Load demo data if user wants to preview pre-filled state
+  const handleLoadDemoData = () => {
+    setStats(DEMO_STATS);
+    setUnits(INITIAL_UNITS);
+    setFlashcards(INITIAL_FLASHCARDS);
+    setCurrentScreen('main');
   };
 
   const handleLessonComplete = (xpEarned: number) => {
@@ -132,6 +196,7 @@ export default function App() {
       xp: prev.xp + xpEarned,
       gems: prev.gems + 10,
       streakActiveToday: true,
+      streakDays: prev.streakDays === 0 ? 1 : prev.streakDays,
     }));
     setActiveLesson(null);
   };
@@ -140,6 +205,8 @@ export default function App() {
     setStats((prev) => ({
       ...prev,
       xp: prev.xp + xpEarned,
+      streakActiveToday: true,
+      streakDays: prev.streakDays === 0 ? 1 : prev.streakDays,
     }));
   };
 
@@ -178,95 +245,114 @@ export default function App() {
     );
   };
 
+  const currentLang = LANGUAGES.find((l) => l.code === stats.selectedLanguage) || LANGUAGES[0];
+
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-0 md:p-4 select-none">
-      {/* Top Device Bar (for desktop preview & toggle) */}
-      <div className="w-full max-w-md hidden md:flex items-center justify-between py-1.5 px-3 mb-2 text-xs text-slate-500">
-        <div className="flex items-center gap-1.5 font-bold text-slate-700">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>LinGoL • Application Vocale</span>
+    <div className="min-h-screen h-screen w-full bg-[#f8f9ff] text-[#0b1c30] flex flex-col overflow-hidden font-sans select-none">
+      {/* 1. Onboarding Screen */}
+      {currentScreen === 'onboarding' && (
+        <div className="flex-1 w-full h-full overflow-y-auto">
+          <OnboardingScreen
+            onGetStarted={handleGetStartedFromOnboarding}
+            onGoogleSignIn={() => setIsGoogleAuthModalOpen(true)}
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPhoneFrame(!isPhoneFrame)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer shadow-2xs font-medium"
-            title="Basculer en mode plein écran"
-          >
-            {isPhoneFrame ? (
-              <>
-                <Monitor className="w-3.5 h-3.5" /> Plein Écran
-              </>
-            ) : (
-              <>
-                <Smartphone className="w-3.5 h-3.5" /> Format Mobile
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => setCurrentScreen('onboarding')}
-            className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-[#004ac6] font-bold hover:bg-blue-100 cursor-pointer"
-            title="Revoir la présentation LinGoL"
-          >
-            Accueil LinGoL
-          </button>
+      )}
+
+      {/* 2. Setup Screen */}
+      {currentScreen === 'setup' && (
+        <div className="flex-1 w-full h-full overflow-y-auto">
+          <SetupModal
+            onComplete={handleSetupComplete}
+            onBack={() => setCurrentScreen('onboarding')}
+          />
         </div>
-      </div>
+      )}
 
-      {/* Main Container / Mobile Device Mockup */}
-      <div
-        className={`w-full bg-[#f8f9ff] text-[#0b1c30] relative overflow-hidden transition-all duration-300 ${
-          isPhoneFrame
-            ? 'max-w-[420px] min-h-[850px] max-h-[920px] rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-[8px] border-slate-800 flex flex-col'
-            : 'max-w-2xl min-h-screen rounded-none md:rounded-2xl shadow-md border-0 md:border border-slate-200 flex flex-col'
-        }`}
-      >
-        {/* Mobile Status Bar Notch Simulation (when in phone frame) */}
-        {isPhoneFrame && (
-          <div className="w-full pt-2 px-6 flex justify-between items-center text-[11px] font-bold text-slate-600 bg-transparent shrink-0 z-30 pointer-events-none">
-            <span>9:41</span>
-            <div className="w-20 h-4 bg-slate-800 rounded-full mx-auto" />
-            <div className="flex items-center gap-1 text-[10px]">
-              <span>5G</span>
-              <span>100%</span>
-            </div>
-          </div>
-        )}
+      {/* 3. Main Web Application Screen */}
+      {currentScreen === 'main' && (
+        <div className="flex-1 flex flex-col md:flex-row h-full w-full overflow-hidden">
+          {/* Desktop Left Sidebar */}
+          <SidebarNav
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+            stats={stats}
+            currentUser={currentUser}
+            onSelectLanguage={handleLanguageChange}
+            onOpenGoogleAuth={() => setIsGoogleAuthModalOpen(true)}
+            onOpenResetModal={() => setIsResetModalOpen(true)}
+            onResetToOnboarding={() => setCurrentScreen('onboarding')}
+          />
 
-        {/* Screen Routing */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          {currentScreen === 'onboarding' && (
-            <OnboardingScreen
-              onGetStarted={handleGetStartedFromOnboarding}
-              onGoogleSignIn={() => setIsGoogleAuthModalOpen(true)}
-            />
-          )}
-
-          {currentScreen === 'setup' && (
-            <SetupModal
-              onComplete={handleSetupComplete}
-              onBack={() => setCurrentScreen('onboarding')}
-            />
-          )}
-
-          {currentScreen === 'main' && (
-            <div className="flex-1 flex flex-col h-full">
+          {/* Main Workspace */}
+          <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#f8f9ff]">
+            {/* Mobile Top Header (hidden on desktop) */}
+            <div className="md:hidden">
               <HeaderNav
                 stats={stats}
                 currentUser={currentUser}
                 onOpenGoogleAuth={() => setIsGoogleAuthModalOpen(true)}
                 onSelectLanguage={handleLanguageChange}
                 onResetToOnboarding={() => setCurrentScreen('onboarding')}
+                onOpenResetModal={() => setIsResetModalOpen(true)}
               />
+            </div>
 
-              <main className="flex-1 overflow-y-auto">
-                {activeTab === 'lina' && (
+            {/* Desktop Top Workspace Header */}
+            <header className="hidden md:flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200/80 shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{currentLang.flag}</span>
+                <div>
+                  <h1 className="text-base font-extrabold text-slate-800 leading-tight">
+                    {activeTab === 'lina' && 'Studio de Conversation Vocale • Lina AI'}
+                    {activeTab === 'path' && 'Parcours d\'apprentissage & Leçons'}
+                    {activeTab === 'review' && 'Coffre de Vocabulaire & Flashcards'}
+                    {activeTab === 'profile' && 'Ligue Diamant & Profil Apprenant'}
+                  </h1>
+                  <span className="text-xs text-slate-500">
+                    Apprentissage de {currentLang.name} ({currentLang.nativeName})
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick actions on Desktop Header */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsResetModalOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-rose-300 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition-colors text-xs font-semibold cursor-pointer"
+                  title="Mettre LinGoL à zéro (état vierge)"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Mettre à zéro</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('lina')}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    activeTab === 'lina'
+                      ? 'bg-[#004ac6] text-white shadow-xs'
+                      : 'bg-blue-50 text-[#004ac6] hover:bg-blue-100'
+                  }`}
+                >
+                  <Mic className="w-3.5 h-3.5" />
+                  <span>Micro Lina</span>
+                </button>
+              </div>
+            </header>
+
+            {/* Main Scrollable Content */}
+            <main className="flex-1 overflow-y-auto w-full max-w-4xl mx-auto h-full flex flex-col">
+              {activeTab === 'lina' && (
+                <div className="flex-1 h-full flex flex-col">
                   <LinaChatStudio
                     selectedLanguage={stats.selectedLanguage}
                     onPracticePointsEarned={handlePracticePoints}
                   />
-                )}
+                </div>
+              )}
 
-                {activeTab === 'path' && (
+              {activeTab === 'path' && (
+                <div className="p-4 md:p-6">
                   <LearningPath
                     units={units}
                     selectedLanguage={stats.selectedLanguage}
@@ -278,48 +364,64 @@ export default function App() {
                     }
                     onOpenVocabReview={() => setActiveTab('review')}
                   />
-                )}
+                </div>
+              )}
 
-                {activeTab === 'review' && (
+              {activeTab === 'review' && (
+                <div className="p-4 md:p-6">
                   <VocabReview
                     selectedLanguage={stats.selectedLanguage}
                     cards={flashcards}
                     onUpdateCardMastery={handleUpdateCardMastery}
                   />
-                )}
+                </div>
+              )}
 
-                {activeTab === 'profile' && (
+              {activeTab === 'profile' && (
+                <div className="p-4 md:p-6">
                   <LeaderboardView
                     stats={stats}
                     currentUser={currentUser}
                     onOpenGoogleAuth={() => setIsGoogleAuthModalOpen(true)}
+                    onOpenResetModal={() => setIsResetModalOpen(true)}
                   />
-                )}
-              </main>
+                </div>
+              )}
+            </main>
 
+            {/* Mobile Bottom Navigation (hidden on desktop) */}
+            <div className="md:hidden">
               <BottomNav activeTab={activeTab} onSelectTab={setActiveTab} />
             </div>
-          )}
+          </div>
         </div>
+      )}
 
-        {/* Active Lesson Modal */}
-        {activeLesson && (
-          <LessonModal
-            lesson={activeLesson}
-            onClose={() => setActiveLesson(null)}
-            onComplete={handleLessonComplete}
-          />
-        )}
-
-        {/* Google Authentication Modal */}
-        <GoogleAuthModal
-          isOpen={isGoogleAuthModalOpen}
-          onClose={() => setIsGoogleAuthModalOpen(false)}
-          currentUser={currentUser}
-          onLogin={handleGoogleLogin}
-          onLogout={handleGoogleLogout}
+      {/* Active Lesson Modal */}
+      {activeLesson && (
+        <LessonModal
+          lesson={activeLesson}
+          onClose={() => setActiveLesson(null)}
+          onComplete={handleLessonComplete}
         />
-      </div>
+      )}
+
+      {/* Google Authentication Modal */}
+      <GoogleAuthModal
+        isOpen={isGoogleAuthModalOpen}
+        onClose={() => setIsGoogleAuthModalOpen(false)}
+        currentUser={currentUser}
+        onLogin={handleGoogleLogin}
+        onLogout={handleGoogleLogout}
+      />
+
+      {/* Reset To Virgin State Modal */}
+      <ResetModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirmReset={handleResetToVirgin}
+        onLoadDemoData={handleLoadDemoData}
+      />
     </div>
   );
 }

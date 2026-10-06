@@ -1,4 +1,4 @@
-import { Language, Unit, Flashcard, LeaderboardUser, WordOfTheDay } from '../types';
+import { Language, Unit, Flashcard, LeaderboardUser, WordOfTheDay, UserStats } from '../types';
 
 export const LANGUAGES: Language[] = [
   {
@@ -518,3 +518,48 @@ export const WORDS_OF_THE_DAY: Record<string, WordOfTheDay[]> = {
     },
   ],
 };
+
+export const VIRGIN_STATS: UserStats = {
+  streakDays: 0,
+  streakActiveToday: false,
+  xp: 0,
+  gems: 0,
+  hearts: 5,
+  maxHearts: 5,
+  level: 1,
+  selectedLanguage: 'es',
+  dailyGoalMinutes: 10,
+  todayMinutesPracticed: 0,
+};
+
+export const DEMO_STATS: UserStats = {
+  streakDays: 5,
+  streakActiveToday: true,
+  xp: 980,
+  gems: 480,
+  hearts: 5,
+  maxHearts: 5,
+  level: 3,
+  selectedLanguage: 'es',
+  dailyGoalMinutes: 10,
+  todayMinutesPracticed: 6,
+};
+
+export function getVirginUnits(): Unit[] {
+  return INITIAL_UNITS.map((u, uIdx) => ({
+    ...u,
+    lessons: u.lessons.map((l, lIdx) => ({
+      ...l,
+      isCompleted: false,
+      stars: 0,
+      isLocked: !(uIdx === 0 && lIdx === 0), // only first lesson of unit 1 unlocked
+    })),
+  }));
+}
+
+export function getVirginFlashcards(): Flashcard[] {
+  return INITIAL_FLASHCARDS.map((f) => ({
+    ...f,
+    mastery: 0,
+  }));
+}

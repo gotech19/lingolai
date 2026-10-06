@@ -11,6 +11,7 @@ interface HeaderNavProps {
   onOpenGoogleAuth: () => void;
   onSelectLanguage: (lang: LanguageCode) => void;
   onResetToOnboarding: () => void;
+  onOpenResetModal?: () => void;
 }
 
 export const HeaderNav: React.FC<HeaderNavProps> = ({
@@ -19,6 +20,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenGoogleAuth,
   onSelectLanguage,
   onResetToOnboarding,
+  onOpenResetModal,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -166,18 +168,20 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           )}
         </button>
 
-        {/* Reset / Onboarding replay button */}
-        <button
-          onClick={() => {
-            playTapSound();
-            onResetToOnboarding();
-          }}
-          className="p-1 rounded-lg text-slate-400 hover:text-[#004ac6] hover:bg-slate-100 transition-colors"
-          title="Revoir la présentation LinGoL"
-          aria-label="Revoir la présentation"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
+        {/* Reset to virgin / clean slate button */}
+        {onOpenResetModal && (
+          <button
+            onClick={() => {
+              playTapSound();
+              onOpenResetModal();
+            }}
+            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+            title="Mettre à zéro l'application (état vierge)"
+            aria-label="Mettre à zéro"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
+          </button>
+        )}
       </div>
     </header>
   );

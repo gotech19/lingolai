@@ -9,12 +9,14 @@ interface LeaderboardViewProps {
   stats: UserStats;
   currentUser: UserProfile;
   onOpenGoogleAuth: () => void;
+  onOpenResetModal?: () => void;
 }
 
 export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
   stats,
   currentUser,
   onOpenGoogleAuth,
+  onOpenResetModal,
 }) => {
   const users = [...INITIAL_LEADERBOARD];
   const curUser = users.find((u) => u.isCurrentUser);
@@ -232,6 +234,27 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Paramètres & Remise à zéro vierge */}
+      {onOpenResetModal && (
+        <div className="mt-5 bg-white rounded-3xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-slate-800">Données & Progression</div>
+              <div className="text-[11px] text-slate-500">Mettre l'application à zéro (état vierge)</div>
+            </div>
+            <button
+              onClick={() => {
+                playTapSound();
+                onOpenResetModal();
+              }}
+              className="py-1.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-colors cursor-pointer"
+            >
+              Mettre à zéro
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

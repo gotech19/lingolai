@@ -1,0 +1,16 @@
+{
+  "name": "LinGoL - Application Web Vocale IA",
+  "short_name": "LinGoL",
+  "description": "Apprenez les langues avec Lina AI : pratique orale, reconnaissance vocale et leçons interactives.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f9ff",
+  "theme_color": "#004ac6",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23004ac6'/><text x='50' y='65' font-size='50' font-family='sans-serif' font-weight='900' fill='white' text-anchor='middle'>L</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
